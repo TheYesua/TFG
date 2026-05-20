@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Accesibilidad · TFG · Situaciones de Aprendizaje{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Declaración de accesibilidad</h1>
+  <p class="lead">
+    La aplicación se ha diseñado conforme a las <abbr title="Web Content
+    Accessibility Guidelines">WCAG</abbr> 2.1 nivel AA.
+  </p>
+</section>
+
+<article class="card">
+  <h2>Características incluidas</h2>
+  <ul>
+    <li>Enlace <strong>«Pasar al contenido principal»</strong> al inicio de cada página.</li>
+    <li>Foco visible reforzado (no depende solo del color).</li>
+    <li>
+      Navegación completa por teclado: <kbd>Tab</kbd>/<kbd>Mayús+Tab</kbd>
+      para moverse, <kbd>Intro</kbd> para activar, <kbd>Esc</kbd> para
+      cerrar diálogos.
+    </li>
+    <li>Etiquetas y encabezados semánticos (<code>&lt;header&gt;</code>,
+      <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>,
+      <code>&lt;footer&gt;</code>, <code>&lt;h1&gt;–&lt;h4&gt;</code>).</li>
+    <li>Imágenes con texto alternativo y SVGs decorativos marcados con
+      <code>aria-hidden</code>.</li>
+    <li>Formularios con <code>label</code> asociado, mensajes de error
+      anunciados a lectores de pantalla y campos con
+      <code>aria-invalid</code> cuando procede.</li>
+    <li>Contraste de texto mínimo 4.5:1 (3:1 en texto grande).</li>
+    <li>Información que no se transmite solo mediante color (iconos
+      lingüísticos, texto y formas refuerzan los estados).</li>
+    <li>Diseño adaptable a móvil, tableta y escritorio; permite zoom
+      hasta 200% sin pérdida de contenido.</li>
+    <li>Animaciones reducidas si el sistema indica
+      <code>prefers-reduced-motion: reduce</code>.</li>
+    <li><a href="/mapa-web">Mapa web</a> para navegación alternativa.</li>
+  </ul>
+</article>
+
+<article class="card">
+  <h2>Limitaciones conocidas</h2>
+  <p>
+    Esta aplicación es un Trabajo de Fin de Grado en evaluación continua.
+    Si detectas alguna barrera de accesibilidad, puedes comunicarla en la
+    sección de <a href="/ayuda">Ayuda</a>.
+  </p>
+</article>
+{% endblock %}

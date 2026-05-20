@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Nueva situación · TFG{% endblock %}
+
+{% block content %}
+<section class="form-section" aria-labelledby="t-nueva">
+  <h1 id="t-nueva">Nueva situación de aprendizaje</h1>
+  <p class="lead">
+    Solo es necesario título, curso y materia. El resto se puede completar
+    después. Cuantos más datos aportes, mejor podrá la IA contextualizar el
+    contenido generado.
+  </p>
+
+  <form id="sa-form" class="form" novalidate>
+    <p class="help">Los campos marcados con <span aria-hidden="true" style="color: var(--color-danger-strong);">*</span>
+      son obligatorios.</p>
+
+    <div class="field">
+      <label for="titulo">
+        Título
+        <span class="req" aria-hidden="true">*</span>
+        <span class="sr-only">(obligatorio)</span>
+      </label>
+      <input type="text" id="titulo" name="titulo" required minlength="2" maxlength="255"
+             placeholder="Ej: La Antártida: una expedición científica" autofocus>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="curso">
+          Curso
+          <span class="req" aria-hidden="true">*</span>
+          <span class="sr-only">(obligatorio)</span>
+        </label>
+        <select id="curso" name="curso" required></select>
+      </div>
+      <div class="field">
+        <label for="materia">
+          Materia
+          <span class="req" aria-hidden="true">*</span>
+          <span class="sr-only">(obligatorio)</span>
+        </label>
+        <select id="materia" name="materia" required></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="num_sesiones">Nº de sesiones</label>
+        <input type="number" id="num_sesiones" name="num_sesiones" min="1" max="200"
+               inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="duracion_sesion_minutos">Duración por sesión (min)</label>
+        <input type="number" id="duracion_sesion_minutos" name="duracion_sesion_minutos"
+               min="15" max="240" value="55" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="idioma">Idioma</label>
+        <select id="idioma" name="idioma">
+          <option value="es" selected>Español</option>
+          <option value="en">Inglés</option>
+          <option value="fr">Francés</option>
+          <option value="ar">Árabe</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="metodologia">Metodología</label>
+      <select id="metodologia" name="metodologia"></select>
+    </div>
+
+    <div class="field">
+      <label for="comunidad_autonoma">Comunidad autónoma</label>
+      <input type="text" id="comunidad_autonoma" name="comunidad_autonoma" maxlength="50" value="Ceuta">
+    </div>
+
+    <div class="field">
+      <label for="descripcion">Descripción / contexto</label>
+      <textarea id="descripcion" name="descripcion" rows="3" maxlength="4000"
+                aria-describedby="descripcion-help"
+                placeholder="Tema, conexión con otras unidades, reto motivador…"></textarea>
+      <small id="descripcion-help" class="help">Máximo 4000 caracteres.</small>
+    </div>
+
+    <div class="field">
+      <label for="perfil_aula">Perfil del aula</label>
+      <textarea id="perfil_aula" name="perfil_aula" rows="2" maxlength="4000"
+                placeholder="Diversidad de partida, intereses, idiomas, etc."></textarea>
+    </div>
+
+    <div class="field check-field">
+      <label class="check">
+        <input type="checkbox" id="generar" name="generar" value="1">
+        <span>Generar contenido con IA al crear</span>
+      </label>
+      <small class="help">Si lo desmarcas, la situación se guarda en borrador y podrás generarla más adelante.</small>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn--primary" id="crear-submit">Crear situación</button>
+      <a href="/situaciones" class="btn">Cancelar</a>
+    </div>
+    <p class="alert" id="msg" role="alert" hidden></p>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Inicializar desplegables al cargar la página
+rellenarSelect(document.getElementById('curso'), CATALOGOS.cursos, { placeholder: 'Selecciona un curso…' });
+rellenarSelect(document.getElementById('materia'), CATALOGOS.materias, { placeholder: 'Selecciona una materia…' });
+rellenarSelect(document.getElementById('metodologia'), CATALOGOS.metodologias, { placeholder: '— Sin especificar —' });
+
+document.getElementById('sa-form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('crear-submit');
+  msg.hidden = true;
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
+  const originalLabel = btn.textContent;
+
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  // Limpiar opcionales vacíos y convertir números
+  for (const k of Object.keys(data)) if (data[k] === '') delete data[k];
+  if (data.num_sesiones) data.num_sesiones = parseInt(data.num_sesiones, 10);
+  if (data.duracion_sesion_minutos) data.duracion_sesion_minutos = parseInt(data.duracion_sesion_minutos, 10);
+  data.generar = !!data.generar;
+  btn.textContent = data.generar ? 'Creando y lanzando IA…' : 'Creando…';
+
+  try {
+    const res = await fetch('/api/situaciones', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok) {
+      window.location.href = `/situaciones/${body.id_situacion}`;
+      return;
+    }
+    if (body.detalles) {
+      msg.textContent = body.detalles.map(d => `${d.loc?.join('.') ?? ''}: ${d.msg}`).join(' · ');
+    } else {
+      msg.textContent = body.mensaje || body.error || 'Error desconocido';
+    }
+    msg.hidden = false;
+  } finally {
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    btn.textContent = originalLabel;
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block title %}Mi perfil · TFG{% endblock %}
+
+{% block content %}
+<section aria-labelledby="t-perfil">
+  <h1 id="t-perfil">Mi perfil</h1>
+  <p class="lead">Consulta y actualiza tus datos como docente.</p>
+
+  <p id="perfil-loading" aria-live="polite">Cargando…</p>
+
+  <article class="card" id="perfil-card" aria-labelledby="t-datos" hidden>
+    <h2 id="t-datos">Datos de la cuenta</h2>
+    <dl class="perfil">
+      <dt>Correo</dt>           <dd id="d-correo"></dd>
+      <dt>Rol</dt>              <dd id="d-rol"></dd>
+      <dt>Registrado el</dt>    <dd id="d-fecha"></dd>
+      <dt>Última sesión</dt>    <dd id="d-ultima"></dd>
+    </dl>
+  </article>
+
+  <article class="card" aria-labelledby="t-editar" id="editar-card" hidden>
+    <h2 id="t-editar">Editar datos</h2>
+    <form id="perfil-form" class="form" novalidate>
+      <div class="field">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" minlength="2" maxlength="100"
+               autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="centro_educativo">Centro educativo</label>
+        <input type="text" id="centro_educativo" name="centro_educativo" maxlength="200"
+               autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="especialidad">Especialidad</label>
+        <input type="text" id="especialidad" name="especialidad" maxlength="100">
+      </div>
+      <div class="field">
+        <label for="comunidad_autonoma">Comunidad autónoma</label>
+        <input type="text" id="comunidad_autonoma" name="comunidad_autonoma" maxlength="50">
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn btn--primary">Guardar cambios</button>
+      </div>
+      <p class="alert" id="perfil-msg" role="alert" hidden></p>
+    </form>
+  </article>
+
+  <article class="card" aria-labelledby="t-pass" id="pass-card" hidden>
+    <h2 id="t-pass">Seguridad</h2>
+    <p>Cambia tu contraseña periódicamente. La nueva debe cumplir los requisitos de seguridad.</p>
+    <div class="actions">
+      <button type="button" id="toggle-password-btn" class="btn btn--secondary"
+              aria-expanded="false" aria-controls="password-section">
+        Cambiar contraseña
+      </button>
+    </div>
+
+    <div id="password-section" hidden>
+      <form id="password-form" class="form" novalidate style="margin-top:.75rem">
+        <div class="field">
+          <label for="contrasena_actual">
+            Contraseña actual
+            <span class="req" aria-hidden="true">*</span>
+            <span class="sr-only">(obligatorio)</span>
+          </label>
+          <input type="password" id="contrasena_actual" name="contrasena_actual" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="nueva_contrasena">
+            Nueva contraseña
+            <span class="req" aria-hidden="true">*</span>
+            <span class="sr-only">(obligatorio)</span>
+          </label>
+          <input type="password" id="nueva_contrasena" name="nueva_contrasena"
+                 minlength="8" autocomplete="new-password" required
+                 aria-describedby="pass-help">
+          <small id="pass-help" class="help">Mínimo 8 caracteres, con al menos una letra y un dígito.</small>
+        </div>
+        <div class="field">
+          <label for="confirmar_contrasena">
+            Confirmar nueva contraseña
+            <span class="req" aria-hidden="true">*</span>
+            <span class="sr-only">(obligatorio)</span>
+          </label>
+          <input type="password" id="confirmar_contrasena" name="confirmar_contrasena"
+                 minlength="8" autocomplete="new-password" required>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn--primary">Guardar nueva contraseña</button>
+          <button type="button" id="cancel-password-btn" class="btn">Cancelar</button>
+        </div>
+        <p class="alert" id="password-msg" role="alert" hidden></p>
+      </form>
+    </div>
+  </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatearFecha(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  // Formato dd/mm/aaaa HH:MM:SS en la zona horaria local del navegador
+  return d.toLocaleString('es-ES', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+}
+
+async function cargarPerfil() {
+  const res = await fetch('/me');
+  if (res.status === 401) {
+    window.location.href = '/login';
+    return;
+  }
+  const u = await res.json();
+  document.getElementById('perfil-loading').hidden = true;
+  document.getElementById('perfil-card').hidden = false;
+  document.getElementById('editar-card').hidden = false;
+  document.getElementById('pass-card').hidden = false;
+  document.getElementById('d-correo').textContent = u.correo;
+  document.getElementById('d-rol').textContent = u.rol;
+  document.getElementById('d-fecha').textContent = formatearFecha(u.fecha_registro);
+  document.getElementById('d-ultima').textContent = formatearFecha(u.ultima_sesion);
+  document.getElementById('nombre').value = u.nombre ?? '';
+  document.getElementById('centro_educativo').value = u.centro_educativo ?? '';
+  document.getElementById('especialidad').value = u.especialidad ?? '';
+  document.getElementById('comunidad_autonoma').value = u.comunidad_autonoma ?? '';
+}
+
+document.getElementById('perfil-form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = document.getElementById('perfil-msg');
+  msg.hidden = true;
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  for (const k of Object.keys(data)) if (data[k] === '') delete data[k];
+
+  const res = await fetch('/me', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (res.ok) {
+    msg.textContent = 'Perfil actualizado correctamente.';
+    msg.classList.add('alert--ok');
+    msg.hidden = false;
+  } else {
+    msg.classList.remove('alert--ok');
+    msg.textContent = body.mensaje || body.error || 'Error desconocido';
+    msg.hidden = false;
+  }
+});
+
+const passwordSection = document.getElementById('password-section');
+const toggleBtn = document.getElementById('toggle-password-btn');
+const cancelBtn = document.getElementById('cancel-password-btn');
+
+toggleBtn.addEventListener('click', () => {
+  passwordSection.hidden = false;
+  toggleBtn.hidden = true;
+  toggleBtn.setAttribute('aria-expanded', 'true');
+  document.getElementById('contrasena_actual').focus();
+});
+cancelBtn.addEventListener('click', () => {
+  passwordSection.hidden = true;
+  toggleBtn.hidden = false;
+  toggleBtn.setAttribute('aria-expanded', 'false');
+  document.getElementById('password-form').reset();
+  document.getElementById('confirmar_contrasena').removeAttribute('aria-invalid');
+  const msg = document.getElementById('password-msg');
+  msg.hidden = true;
+  toggleBtn.focus();
+});
+
+document.getElementById('password-form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = document.getElementById('password-msg');
+  msg.hidden = true;
+  msg.classList.remove('alert--ok');
+
+  const contrasena_actual = document.getElementById('contrasena_actual').value;
+  const nueva = document.getElementById('nueva_contrasena').value;
+  const confirmar = document.getElementById('confirmar_contrasena').value;
+
+  const confirmInput = document.getElementById('confirmar_contrasena');
+  confirmInput.removeAttribute('aria-invalid');
+  if (nueva !== confirmar) {
+    msg.textContent = 'Las contraseñas nuevas no coinciden.';
+    msg.hidden = false;
+    confirmInput.setAttribute('aria-invalid', 'true');
+    confirmInput.focus();
+    return;
+  }
+
+  const res = await fetch('/auth/cambiar-contrasena', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ contrasena_actual, nueva_contrasena: nueva }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (res.ok) {
+    msg.textContent = 'Contraseña cambiada correctamente.';
+    msg.classList.add('alert--ok');
+    msg.hidden = false;
+    ev.target.reset();
+    setTimeout(() => {
+      passwordSection.hidden = true;
+      toggleBtn.hidden = false;
+      msg.hidden = true;
+    }, 2000);
+  } else {
+    msg.textContent = body.mensaje || body.error || 'Error desconocido';
+    msg.hidden = false;
+  }
+});
+
+cargarPerfil();
+</script>
+{% endblock %}

@@ -1,0 +1,1074 @@
+/* =============================================================================
+   Sistema de diseño TFG · Situaciones de Aprendizaje
+   ----------------------------------------------------------------------------
+   Tokens fieles a la paleta del cap. 5 del documento (Tabla 5.x). Los colores
+   primario (#5ED3D1) y secundario (#7C83FD) se usan SIEMPRE como fondo o
+   acento, con texto en oscuro ``--color-text`` (#1F2937) para garantizar
+   ratios WCAG 2.1 AA. El único derivado introducido es ``--color-link``
+   (#4F46E5) para texto-enlace inline sobre blanco, donde el #7C83FD no
+   alcanza 4.5:1.
+   ============================================================================= */
+
+:root {
+  /* ----------------------------------------------------------------
+     Paleta cromática (cap. 5 del documento, Tabla 5.x).
+     Los tonos del manual se usan SIEMPRE como fondo o acento;
+     el texto sobre ellos es el ``--color-text`` (#1F2937), que
+     garantiza ratios AA:
+        #5ED3D1 sobre #1F2937 ≈ 7.9:1   (AAA)
+        #7C83FD sobre #1F2937 ≈ 4.7:1   (AA)
+     ---------------------------------------------------------------- */
+  --color-primary:        #5ED3D1;  /* primario: cabecera, botones acción */
+  --color-primary-hover:  #3FBDBB;  /* derivado más oscuro para hover/active */
+  --color-primary-soft:   #E6F7F7;  /* fondos sutiles, callouts */
+  --color-secondary:        #7C83FD; /* secundario: acentos, elementos interactivos */
+  --color-secondary-hover:  #6970FB;
+  --color-secondary-soft:   #EEF0FF;
+  /* Variante OSCURA del secundario, sólo para texto-enlace inline sobre
+     blanco, donde el #7C83FD no llega a AA (ratio 3.0:1). En cualquier
+     superficie que NO sea texto sobre blanco se usa #7C83FD tal cual. */
+  --color-link:           #4F46E5;
+
+  /* ---- Superficies y texto (cap. 5) ---- */
+  --color-bg:         #F7FAFC;
+  --color-surface:    #FFFFFF;
+  --color-surface-2:  #F1F5F9;  /* zonas levemente diferenciadas */
+  --color-text:       #1F2937;
+  --color-text-muted: #4B5563;  /* ratio 7:1 sobre blanco — AAA */
+  --color-border:     #D1D5DB;
+  --color-border-strong: #9CA3AF;
+
+  /* ---- Estados (cap. 5) ---- */
+  --color-success:        #34D399;
+  --color-success-strong: #047857;  /* variante para texto */
+  --color-success-soft:   #ECFDF5;
+  --color-warning:        #FBBF24;
+  --color-warning-strong: #B45309;  /* variante para texto */
+  --color-warning-soft:   #FFFBEB;
+  --color-danger:         #F87171;
+  --color-danger-strong:  #B91C1C;  /* variante para texto */
+  --color-danger-soft:    #FEF2F2;
+
+  /* ---- Tipografía ---- */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Escala modular (1.125): 0.875 · 1 · 1.125 · 1.25 · 1.5 · 1.875 · 2.25 */
+  --fs-xs:   0.75rem;
+  --fs-sm:   0.875rem;
+  --fs-base: 1rem;
+  --fs-md:   1.125rem;
+  --fs-lg:   1.25rem;
+  --fs-xl:   1.5rem;
+  --fs-2xl:  1.875rem;
+  --fs-3xl:  2.25rem;
+
+  /* ---- Espaciado, radios, sombras ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
+  --shadow:    0 4px 12px rgba(15, 23, 42, .08);
+  --shadow-lg: 0 10px 30px rgba(15, 23, 42, .12);
+
+  /* ---- Compatibilidad con clases legacy del CSS anterior ---- */
+  --bg:           var(--color-bg);
+  --surface:      var(--color-surface);
+  --text:         var(--color-text);
+  --muted:        var(--color-text-muted);
+  --primary:      var(--color-link);          /* enlace/acento de texto AA */
+  --primary-dark: var(--color-primary-hover);
+  --border:       var(--color-border);
+  --ok-bg:  var(--color-success-soft);
+  --ok-fg:  var(--color-success-strong);
+  --error-bg: var(--color-danger-soft);
+  --error-fg: var(--color-danger-strong);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Reset crítico: el atributo HTML ``hidden`` debe ocultar SIEMPRE,
+   independientemente del ``display`` que declare la clase del elemento.
+   Sin ``!important``, cualquier regla posterior con display:flex/grid/
+   inline-block ganaría por especificidad y dejaría el elemento visible
+   (ya nos pasó con .alert y .dashboard-grid). */
+[hidden] { display: none !important; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Jerarquía tipográfica accesible. ``line-height`` reducido en titulares y
+   ``text-wrap: balance`` para que no queden palabras sueltas. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  line-height: 1.25;
+  margin: 0 0 var(--space-3);
+  text-wrap: balance;
+  font-weight: 700;
+}
+h1 { font-size: var(--fs-2xl); letter-spacing: -0.01em; }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-lg); }
+h4 { font-size: var(--fs-md); }
+p  { margin: 0 0 var(--space-3); }
+p:last-child { margin-bottom: 0; }
+
+/* Los enlaces inline usan ``--color-link`` (derivado AA del secundario),
+   no el #7C83FD plano: sobre blanco ese tono no llega a 4.5:1. El
+   subrayado es siempre visible para no depender sólo del color. */
+a { color: var(--color-link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+
+img, svg { max-width: 100%; height: auto; }
+
+/* ---- Foco visible accesible (no sólo color: outline grueso) ---- */
+:focus-visible {
+  outline: 3px solid var(--color-link);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---- Selección con contraste AA ---- */
+::selection { background: var(--color-primary-soft); color: var(--color-text); }
+
+/* ---- Skip link visible al recibir foco ---- */
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  background: var(--color-link);
+  color: #fff;  /* #4F46E5 sobre blanco/negro mantiene >7:1 */
+  padding: .65rem 1rem;
+  z-index: 1000;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius) 0;
+  font-weight: 700;
+}
+.skip-link:focus {
+  left: 0;
+  outline: 3px solid var(--color-text);
+  outline-offset: 0;
+}
+
+/* ---- Solo para lectores de pantalla ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Layout */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Topbar (cabecera) — fondo primario según paleta del documento.
+   Como el primario #5ED3D1 es claro, el texto va en oscuro
+   ``--color-text``: ratio ~7.9:1 (AAA). */
+.topbar {
+  background: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  overflow: visible;
+}
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  /*flex-wrap: wrap;*/
+  padding-block: var(--space-3);
+}
+.brand {
+  font-weight: 800;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--fs-md);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  letter-spacing: -0.01em;
+}
+/* Logo de marca: ahora es un <img> (PNG con la identidad AWEBO).
+   Tamaño consistente, sin distorsión y con object-fit por si el origen
+   no es cuadrado. */
+.brand__logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.brand__nombre { letter-spacing: .02em; }
+.brand:hover { text-decoration: none; }
+
+/* Iconos Lucide: la librería inyecta un <svg> reemplazando al <i>.
+   Le damos tamaño relativo al texto y lo centramos verticalmente
+   con el contenido adyacente. ``stroke="currentColor"`` por defecto. */
+[data-lucide],
+.btn svg.lucide,
+.nav svg.lucide,
+.link-btn svg.lucide {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  vertical-align: -0.18em;
+  stroke-width: 2;
+}
+.link-btn { display: inline-flex; align-items: center; gap: var(--space-1); }
+
+.nav { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; max-height: calc(100vh - 80px); overflow-y: auto;}
+.nav a, .link-btn {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: .5rem .75rem;
+  border-radius: var(--radius);
+  transition: background-color .12s ease;
+}
+.nav a:hover, .link-btn:hover {
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.5);
+}
+/* Indicador del enlace activo: fondo blanco + subrayado grueso (refuerzo
+   no sólo color). */
+.nav a[aria-current="page"] {
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--color-text);
+}
+
+/* Menu hamburguesa */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-toggle:hover {
+  background: rgba(255,255,255,.4);
+}
+
+.nav-toggle span {
+  width: 22px;
+  height: 2px;
+  background: var(--color-text);
+  margin-inline: auto;
+  border-radius: 999px;
+}
+
+/* ---------------------------------------------------------
+   Modo móvil / zoom elevado
+   --------------------------------------------------------- */
+@media (max-width: 900px) {
+
+  .topbar__inner {
+    flex-wrap: nowrap;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+
+    padding: var(--space-2);
+
+    background: var(--color-primary);
+    border-bottom: 1px solid var(--color-primary-hover);
+    box-shadow: var(--shadow);
+  }
+
+  .nav.nav--open {
+    display: flex;
+  }
+
+  .nav a,
+  .nav .link-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: .85rem 1rem;
+  }
+}
+
+/* Footer */
+.footer {
+  margin-top: var(--space-7);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.footer .container { padding-block: var(--space-5); color: var(--color-text-muted); }
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-5);
+}
+.footer__col h2 {
+  font-size: var(--fs-sm);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2);
+}
+.footer__col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-1); }
+.footer__col a { color: var(--color-text); text-decoration: none; font-size: var(--fs-sm); }
+.footer__col a:hover { text-decoration: underline; }
+.footer__bottom {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+@media (max-width: 720px) {
+  .footer__grid { grid-template-columns: 1fr; }
+}
+
+/* Hero / cabeceras */
+.hero { padding: var(--space-5) 0 var(--space-4); }
+.hero h1 { font-size: var(--fs-3xl); margin: 0 0 var(--space-2); letter-spacing: -0.02em; }
+.lead { color: var(--color-text-muted); margin: 0 0 var(--space-4); font-size: var(--fs-md); max-width: 65ch; }
+
+/* Cards */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin: var(--space-4) 0;
+  box-shadow: var(--shadow-sm);
+}
+.card h2 { margin-top: 0; font-size: var(--fs-lg); }
+.card--accent {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* Tablas */
+.api { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.api th, .api td {
+  text-align: left;
+  padding: .5rem .6rem;
+  border-bottom: 1px solid var(--border);
+}
+.api th { background: #f1f3f7; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: #eef0f5; padding: 0 .25rem; border-radius: 3px; }
+
+/* Formularios */
+.form-section {
+  max-width: 520px;
+  margin: var(--space-5) auto;
+  background: var(--color-surface);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.form { display: flex; flex-direction: column; gap: var(--space-4); }
+.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.field label {
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+}
+/* Indicador de "requerido" textual + visual (no sólo color). */
+.field label .req {
+  color: var(--color-danger-strong);
+  margin-left: 2px;
+}
+.field input,
+.field textarea,
+.field select {
+  font: inherit;
+  padding: .6rem .75rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--color-text);
+  transition: border-color .12s ease, box-shadow .12s ease;
+  min-height: 2.5rem;
+}
+.field input:hover,
+.field textarea:hover,
+.field select:hover { border-color: var(--color-primary-hover); }
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+.field [aria-invalid="true"] {
+  border-color: var(--color-danger-strong);
+  background: var(--color-danger-soft);
+}
+.field [aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+.help { color: var(--color-text-muted); font-size: var(--fs-sm); }
+.field-error {
+  color: var(--color-danger-strong);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+.field-error::before { content: "\26A0"; }  /* triángulo: refuerzo no-color */
+
+/* Botones
+   ----------------------------------------------------------------
+   Sistema basado en variables CSS: cada variante define su
+   ``--btn-bg`` / ``--btn-fg`` / ``--btn-bg-hover``, y la regla
+   genérica ``.btn:hover`` resuelve ``--btn-bg-hover`` — así
+   ningún variant queda con texto blanco sobre fondo casi-blanco. */
+.actions { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; margin-top: var(--space-2); }
+.btn {
+  --btn-bg: var(--color-surface);
+  --btn-bg-hover: var(--color-surface-2);
+  --btn-fg: var(--color-text);
+  --btn-bd: var(--color-border-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: .6rem 1rem;
+  min-height: 2.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--btn-bd);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  text-decoration: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .08s ease, background-color .12s ease, box-shadow .12s ease;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--btn-bg-hover); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn[aria-disabled="true"] {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+/* Primario: turquesa del manual + texto oscuro (AAA ~7.9:1). */
+.btn--primary {
+  --btn-bg:       var(--color-primary);
+  --btn-bg-hover: var(--color-primary-hover);
+  --btn-fg:       var(--color-text);
+  --btn-bd:       var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
+}
+/* Secundario: violeta del manual + texto oscuro (AA ~4.7:1). */
+.btn--secondary {
+  --btn-bg:       var(--color-secondary);
+  --btn-bg-hover: var(--color-secondary-hover);
+  --btn-fg:       var(--color-text);
+  --btn-bd:       var(--color-secondary-hover);
+}
+.btn--ghost {
+  --btn-bg:       transparent;
+  --btn-bg-hover: var(--color-primary-soft);
+  --btn-bd:       transparent;
+  --btn-fg:       var(--color-link);
+}
+.link { color: var(--color-link); }
+
+/* Alertas */
+/* Nota intencional sobre [hidden]:
+   La regla global ``[hidden] { display: none !important }`` está definida
+   en el reset (ver inicio del archivo). Cualquier componente con display
+   propio (.alert flex, .dashboard-grid grid, .card-header__acciones flex…)
+   queda correctamente oculto cuando lleva el atributo HTML ``hidden``. */
+.alert {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-strong);
+  border: 1px solid var(--color-danger-strong);
+  border-radius: var(--radius);
+  margin: 0;
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-weight: 500;
+}
+/* Icono lingüístico para alertas (no sólo color). */
+.alert::before {
+  content: "\26A0";
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.alert--ok {
+  background: var(--color-success-soft);
+  color: var(--color-success-strong);
+  border-color: var(--color-success-strong);
+}
+.alert--ok::before { content: "\2713"; }
+.alert--info {
+  background: var(--color-secondary-soft);
+  color: var(--color-link);
+  border-color: var(--color-link);
+}
+.alert--info::before { content: "\2139"; }
+.alert--warn {
+  background: var(--color-warning-soft);
+  color: var(--color-warning-strong);
+  border-color: var(--color-warning-strong);
+}
+.alert--warn::before { content: "\26A0"; }
+
+/* Definición de perfil */
+.perfil { display: grid; grid-template-columns: 12rem 1fr; row-gap: .35rem; column-gap: 1rem; margin: 0 0 1rem; }
+.perfil dt { color: var(--muted); }
+.perfil dd { margin: 0; }
+
+@media (max-width: 600px) {
+  .perfil { grid-template-columns: 1fr; row-gap: .1rem; }
+  .perfil dt { margin-top: .5rem; }
+}
+
+/* Form: textareas y selects con el mismo estilo que inputs */
+.field textarea,
+.field select {
+  font: inherit;
+  padding: .55rem .65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  resize: vertical;
+}
+.field textarea:focus,
+.field select:focus { border-color: var(--primary); }
+
+/* Filas de campos */
+.row { display: grid; gap: 1rem; grid-template-columns: repeat(3, 1fr); }
+.row .field { min-width: 0; }
+@media (max-width: 600px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+/* Formularios anchos (creación/edición de SA) — necesitan más espacio
+   horizontal por las filas de tres columnas. */
+.form-section:has(.row) { max-width: 760px; }
+
+/* Checkbox personalizado con foco visible y target táctil amplio. */
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  font-weight: 500;
+  min-height: 2.5rem;
+  margin: 0;
+}
+.check input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+.check:hover { background: var(--color-surface-2); }
+.check-field { gap: var(--space-1); }
+
+/* Cabecera de página con acción a la derecha */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0 .5rem;
+}
+
+/* Filtros */
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.filtros .actions { margin: 0; }
+@media (max-width: 800px) {
+  .filtros { grid-template-columns: 1fr 1fr; }
+  .filtros .actions { grid-column: 1 / -1; }
+}
+
+/* Botón destructivo */
+.btn--danger {
+  background: #fff;
+  color: var(--error-fg);
+  border-color: var(--error-fg);
+}
+.btn--danger:hover { background: var(--error-bg); }
+
+/* Respeto absoluto a usuarios con reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Permitir ampliar contenido sin desbordamientos: el usuario puede hacer
+   zoom hasta 200% (WCAG 1.4.4). Garantizamos contenedores fluidos. */
+.container { width: 100%; }
+@media (min-width: 1100px) { .container { max-width: 1080px; } }
+
+/* ---- Dashboard del docente (index autenticado): 3 columnas ----
+   Tres tarjetas de igual tamaño: recientes · acciones · estadísticas.
+   En móvil colapsa a una sola columna manteniendo el orden lógico. */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-5) 0;
+}
+.dashboard-grid > .card { margin: 0; }
+/* Títulos centrados en las tres tarjetas del dashboard. */
+.dashboard-grid > .card > h2 { text-align: center; }
+
+.dashboard-acciones .actions--vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+/* En columnas estrechas el texto largo de los CTAs (ej. "Nueva situación
+   de aprendizaje") no cabe en una línea, sobre todo con zoom 200%.
+   Permitimos wrap aquí pero mantenemos ``nowrap`` global en ``.btn``
+   para no romper la apariencia del resto de botones del sitio. */
+.dashboard-acciones .btn {
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.dashboard-recientes__pie { margin-top: var(--space-3); text-align: center; }
+
+@media (max-width: 900px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+/* Lista de SAs recientes en el dashboard */
+.lista-recientes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.lista-recientes li { margin: 0; }
+.lista-recientes__enlace {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "titulo badge" "meta meta";
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: background-color .12s ease, border-color .12s ease;
+}
+.lista-recientes__enlace:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-border-strong);
+  text-decoration: none;
+}
+.lista-recientes__titulo {
+  grid-area: titulo;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.lista-recientes__meta {
+  grid-area: meta;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+.lista-recientes__enlace .badge { grid-area: badge; align-self: start; }
+.lista-recientes__vacio { color: var(--color-text-muted); font-style: italic; }
+
+/* Estadísticas: cuadrícula de 2x2 con cifras grandes y etiqueta debajo. */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin: 0;
+}
+.stat {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  text-align: center;
+}
+.stat dt {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  order: 2;
+}
+.stat dd {
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-text);
+  order: 1;
+}
+.stat { display: flex; flex-direction: column; }
+.stat--ok   dd { color: var(--color-success-strong); }
+.stat--warn dd { color: var(--color-warning-strong); }
+
+/* ---- Features grid (cómo funciona: 3 pasos en el dashboard) ---- */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin: var(--space-5) 0;
+}
+.feature {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.feature h3 { margin: 0 0 var(--space-2); font-size: var(--fs-md); }
+.feature p  { color: var(--color-text-muted); margin: 0; }
+.feature__num {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-text);
+  font-weight: 800;
+  font-size: var(--fs-md);
+  margin-bottom: var(--space-3);
+}
+@media (max-width: 720px) {
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+
+/* --- Generacion IA (Fase 4) ---------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #1f2937;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.badge--ok   { background: #d1fae5; color: #065f46; }
+.badge--warn { background: #fef3c7; color: #92400e; }
+.badge--err  { background: #fee2e2; color: #991b1b; }
+
+.btn--small {
+  padding: .25rem .6rem;
+  font-size: .85rem;
+}
+
+.seccion-gen {
+  border-top: 1px solid var(--border);
+  padding: 1rem 0;
+}
+.seccion-gen header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.seccion-gen header h3 { margin: 0; flex: 1; }
+.seccion-gen header small { color: #6b7280; font-family: monospace; }
+.seccion-json {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: .75rem 1rem;
+  border-radius: .5rem;
+  overflow-x: auto;
+  font-size: .85rem;
+  margin: .5rem 0 0 0;
+}
+
+#gen-progreso progress {
+  width: 100%;
+  height: 1.2rem;
+}
+
+/* =====================================================================
+   Render legible de las 6 secciones LOMLOE (render-secciones.js)
+   ===================================================================== */
+.seccion-cuerpo {
+  margin-top: .75rem;
+  line-height: 1.55;
+  color: #1F2937;
+}
+.seccion-cuerpo > * + * { margin-top: 1rem; }
+.seccion-parrafo { margin: 0; }
+
+/* Callouts (pregunta guía, producto final) */
+.callout {
+  border-left: 4px solid #5ED3D1;
+  background: #f0fbfb;
+  padding: .6rem .9rem;
+  border-radius: .25rem;
+}
+.callout--producto {
+  border-left-color: #7C83FD;
+  background: #f3f4ff;
+}
+.callout__label {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #374151;
+  margin-bottom: .2rem;
+}
+.callout p { margin: 0; }
+
+/* Chips (competencias, criterios, fases) */
+.chip {
+  display: inline-block;
+  font-size: .75rem;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #374151;
+  font-weight: 600;
+  margin: 0 .2rem .2rem 0;
+}
+.chip--competencia { background: #ddebff; color: #1e40af; }
+.chip--criterio    { background: #fef3c7; color: #92400e; }
+.chip--fase        { background: #ede9fe; color: #5b21b6; }
+.chips-row { display: flex; flex-wrap: wrap; gap: .25rem; }
+
+/* Lista de objetivos */
+.lista-objetivos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: .6rem;
+  counter-reset: obj;
+}
+.objetivo {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+}
+.objetivo__num {
+  flex: 0 0 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: #5ED3D1;
+  color: white;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  font-size: .85rem;
+}
+.objetivo__cuerpo { flex: 1; }
+.objetivo__cuerpo p { margin: 0 0 .25rem; }
+.objetivo__chips { margin-top: .25rem; }
+
+/* Tablas de currículo y evaluación */
+.tabla-responsiva { overflow-x: auto; }
+.tabla-curr, .tabla-eval, .tabla-rubrica {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+.tabla-curr th, .tabla-curr td,
+.tabla-eval th, .tabla-eval td,
+.tabla-rubrica th, .tabla-rubrica td {
+  border: 1px solid #e5e7eb;
+  padding: .5rem .65rem;
+  text-align: left;
+  vertical-align: top;
+}
+.tabla-curr thead th, .tabla-eval thead th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+.tabla-eval .num { text-align: right; white-space: nowrap; }
+.tabla-rubrica th {
+  background: #f9fafb;
+  width: 30%;
+  white-space: nowrap;
+}
+.curr-bloque + .curr-bloque,
+.eval-bloque + .eval-bloque { margin-top: 1rem; }
+.curr-bloque h4, .eval-bloque h4 {
+  margin: 0 0 .4rem;
+  font-size: 1rem;
+  color: #374151;
+}
+
+/* Sesiones */
+.sesion {
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+  padding: .85rem 1rem;
+  background: #fff;
+}
+.sesion + .sesion { margin-top: .75rem; }
+.sesion__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .5rem;
+  border-bottom: 1px dashed #e5e7eb;
+  padding-bottom: .5rem;
+}
+.sesion__num {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #5b21b6;
+}
+.sesion__titulo { margin: 0; font-size: 1.05rem; flex: 1 1 100%; }
+.sesion__meta { display: flex; gap: .5rem; align-items: center; }
+.sesion__dur {
+  font-size: .8rem;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+.sesion-bloque + .sesion-bloque { margin-top: .55rem; }
+.sesion-bloque h5 {
+  margin: 0 0 .25rem;
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #6b7280;
+}
+.lista-actividades { margin: 0; padding-left: 1.25rem; }
+.lista-actividades li + li { margin-top: .25rem; }
+
+/* Rúbricas */
+.rubrica {
+  border: 1px solid #e5e7eb;
+  border-radius: .35rem;
+  padding: .5rem .75rem;
+  background: #fff;
+}
+.rubrica + .rubrica { margin-top: .5rem; }
+.rubrica > summary {
+  cursor: pointer;
+  font-size: .95rem;
+  padding: .25rem 0;
+}
+.rubrica .tabla-rubrica { margin-top: .5rem; }
+
+/* Atención a la diversidad */
+.dua-bloque {
+  border-left: 4px solid #34D399;
+  padding: .25rem .85rem;
+  background: #f0fdf4;
+  border-radius: .25rem;
+}
+.dua-bloque + .dua-bloque { margin-top: .65rem; }
+.dua-bloque--acns { border-left-color: #FBBF24; background: #fffbeb; }
+.dua-bloque--acs  { border-left-color: #F87171; background: #fef2f2; }
+.dua-bloque h4 {
+  margin: 0 0 .25rem;
+  font-size: .95rem;
+  color: #374151;
+}
+.lista-dua { margin: 0; padding-left: 1.25rem; }
+.lista-dua li + li { margin-top: .2rem; }
+
+/* Cabecera de tarjeta con acciones a la derecha */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .25rem;
+}
+.card-header h2 { margin: 0; }
+.card-header__acciones { display: flex; gap: .5rem; }
+
+/* Enlace extra bajo formularios (ej: ¿olvidaste contraseña?) */
+.form-extra-links {
+  margin: .5rem 0 0;
+  text-align: center;
+}
+.link--small { font-size: .875rem; }

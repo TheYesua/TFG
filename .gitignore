@@ -1,0 +1,118 @@
+# =============================================================================
+# .gitignore — proyecto AWEBO (TFG)
+# Reglas relativas a este directorio (implementacion/).
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Secretos y entorno
+# -----------------------------------------------------------------------------
+# Cualquier .env real fuera del repo. .env.example SÍ se sube (plantilla).
+.env
+.env.*
+!.env.example
+
+# Credenciales / claves sueltas que pudieran caer aquí por error
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+**/secrets/
+
+# -----------------------------------------------------------------------------
+# Tests (por petición explícita: no se publican)
+# -----------------------------------------------------------------------------
+api/tests/
+api/test_openai.py
+api/.pytest_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Artefactos de exportación generados en pruebas manuales
+test_export.pdf
+test_export.docx
+*.tmp.pdf
+*.tmp.docx
+
+# -----------------------------------------------------------------------------
+# Bases de datos y volúmenes persistentes
+# -----------------------------------------------------------------------------
+# Postgres corre en Docker; nunca debe haber datos reales en el repo.
+postgres/data/
+postgres/pgdata/
+pgdata/
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.dump
+*.backup
+backups/
+
+# Redis (por si se persiste localmente fuera de Docker)
+dump.rdb
+appendonly.aof
+
+# -----------------------------------------------------------------------------
+# Subidas / generaciones de usuario en runtime
+# -----------------------------------------------------------------------------
+api/app/static/uploads/
+api/app/exports/
+api/instance/
+
+# -----------------------------------------------------------------------------
+# Logs
+# -----------------------------------------------------------------------------
+*.log
+logs/
+api/logs/
+
+# -----------------------------------------------------------------------------
+# Python
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# -----------------------------------------------------------------------------
+# Node (por si se introdujese tooling de frontend en el futuro)
+# -----------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# -----------------------------------------------------------------------------
+# IDE y sistema operativo
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------------------------------------------------------------------
+# Docker / Compose overrides locales
+# -----------------------------------------------------------------------------
+docker-compose.override.local.yml
+*.local
+

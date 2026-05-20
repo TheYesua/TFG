@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Mapa web · TFG · Situaciones de Aprendizaje{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Mapa web</h1>
+  <p class="lead">
+    Índice navegable de todas las páginas y secciones públicas de la
+    aplicación.
+  </p>
+</section>
+
+<div class="card">
+  <nav aria-label="Mapa del sitio">
+    <h2>Acceso público</h2>
+    <ul>
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/login">Iniciar sesión</a></li>
+      <li><a href="/register">Crear cuenta de docente</a></li>
+      <li><a href="/restablecer-contrasena">Restablecer contraseña</a></li>
+    </ul>
+
+    <h2>Área del docente (requiere iniciar sesión)</h2>
+    <ul>
+      <li>
+        <a href="/situaciones">Mis situaciones de aprendizaje</a>
+        <ul>
+          <li><a href="/situaciones/nueva">Crear nueva situación</a></li>
+        </ul>
+      </li>
+      <li><a href="/perfil">Mi perfil</a></li>
+    </ul>
+
+    <h2>Información y soporte</h2>
+    <ul>
+      <li><a href="/ayuda">Centro de ayuda</a></li>
+      <li><a href="/accesibilidad">Declaración de accesibilidad</a></li>
+      <li><a href="/mapa-web">Mapa web (esta página)</a></li>
+    </ul>
+  </nav>
+</div>
+{% endblock %}

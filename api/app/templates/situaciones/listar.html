@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Mis situaciones · TFG{% endblock %}
+
+{% block content %}
+<section aria-labelledby="t-list">
+  <div class="page-head">
+    <div>
+      <h1 id="t-list">Mis situaciones de aprendizaje</h1>
+      <p class="lead" id="lista-resumen" aria-live="polite">Cargando…</p>
+    </div>
+    <a href="/situaciones/nueva" class="btn btn--primary">
+      <i data-lucide="plus" aria-hidden="true"></i>
+      <span>Nueva situación</span>
+    </a>
+  </div>
+
+  <form id="filtros" class="filtros" aria-label="Filtros de búsqueda">
+    <div class="field">
+      <label for="f-q">Buscar por título</label>
+      <input type="search" id="f-q" name="q" placeholder="Ej: Robótica">
+    </div>
+    <div class="field">
+      <label for="f-curso">Curso</label>
+      <select id="f-curso" name="curso"></select>
+    </div>
+    <div class="field">
+      <label for="f-materia">Materia</label>
+      <select id="f-materia" name="materia"></select>
+    </div>
+    <div class="field">
+      <label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado">
+        <option value="">Todos</option>
+        <option value="borrador">Borrador</option>
+        <option value="generando">Generando…</option>
+        <option value="generada">Generada</option>
+        <option value="error_generacion">Error de generación</option>
+        <option value="finalizada">Finalizada</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn--primary">Aplicar filtros</button>
+      <button type="reset" class="btn">Limpiar</button>
+    </div>
+  </form>
+
+  <p id="lista-vacia" class="lead" hidden>
+    No hay situaciones que coincidan con los filtros aplicados.
+    <a href="/situaciones/nueva" class="link">Crea la primera</a>.
+  </p>
+
+  <div class="tabla-responsiva">
+    <table class="api" id="lista-tabla" hidden>
+      <caption class="sr-only">Listado de situaciones de aprendizaje del docente</caption>
+      <thead>
+        <tr>
+          <th scope="col">Título</th>
+          <th scope="col">Curso</th>
+          <th scope="col">Materia</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Modificada</th>
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody id="lista-body"></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fmtFecha(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d) ? iso : d.toLocaleString('es-ES', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+}
+
+const ESTADOS = {
+  borrador:         { etiqueta: 'Borrador',   cls: '' },
+  generando:        { etiqueta: 'Generando…', cls: 'badge--warn' },
+  generada:         { etiqueta: 'Generada',   cls: 'badge--ok'   },
+  error_generacion: { etiqueta: 'Error',      cls: 'badge--err'  },
+  finalizada:       { etiqueta: 'Finalizada', cls: 'badge--ok'   },
+};
+
+function badgeEstado(estado) {
+  const def = ESTADOS[estado] || { etiqueta: estado, cls: '' };
+  return `<span class="badge ${def.cls}">${def.etiqueta}</span>`;
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+async function cargar(params = {}) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v) qs.set(k, v);
+  const url = '/api/situaciones' + (qs.toString() ? '?' + qs : '');
+
+  const resumen = document.getElementById('lista-resumen');
+  resumen.textContent = 'Cargando…';
+
+  const res = await fetch(url);
+  if (res.status === 401) { window.location.href = '/login'; return; }
+  const items = await res.json();
+
+  const tabla = document.getElementById('lista-tabla');
+  const body = document.getElementById('lista-body');
+  const vacia = document.getElementById('lista-vacia');
+  body.innerHTML = '';
+
+  if (!items.length) {
+    tabla.hidden = true;
+    vacia.hidden = false;
+    resumen.textContent = 'Sin resultados';
+    return;
+  }
+  vacia.hidden = true;
+  tabla.hidden = false;
+  resumen.textContent = `${items.length} situación${items.length === 1 ? '' : 'es'} encontrada${items.length === 1 ? '' : 's'}.`;
+
+  for (const sa of items) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><a href="/situaciones/${sa.id_situacion}">${escapeHtml(sa.titulo)}</a></td>
+      <td>${escapeHtml(sa.curso)}</td>
+      <td>${escapeHtml(sa.materia)}</td>
+      <td>${badgeEstado(sa.estado)}</td>
+      <td>${fmtFecha(sa.fecha_modificacion)}</td>
+      <td><a href="/situaciones/${sa.id_situacion}" class="link"
+             aria-label="Abrir situación ${escapeHtml(sa.titulo)}">Abrir</a></td>
+    `;
+    body.appendChild(tr);
+  }
+}
+
+document.getElementById('filtros').addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const data = Object.fromEntries(new FormData(ev.target).entries());
+  cargar(data);
+});
+
+document.getElementById('filtros').addEventListener('reset', () => {
+  setTimeout(() => cargar(), 0);
+});
+
+rellenarSelect(document.getElementById('f-curso'),   CATALOGOS.cursos,   { placeholder: 'Todos' });
+rellenarSelect(document.getElementById('f-materia'), CATALOGOS.materias, { placeholder: 'Todas' });
+cargar();
+</script>
+{% endblock %}

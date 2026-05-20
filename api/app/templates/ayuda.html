@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Ayuda · TFG · Situaciones de Aprendizaje{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Centro de ayuda</h1>
+  <p class="lead">
+    Guías rápidas para crear, editar y exportar Situaciones de Aprendizaje
+    LOMLOE con asistencia de IA.
+  </p>
+</section>
+
+<nav aria-label="Índice de la página" class="card" style="background: var(--color-surface-2);">
+  <h2 style="font-size: var(--fs-base);">En esta página</h2>
+  <ul style="margin: 0; padding-left: 1.25rem;">
+    <li><a href="#empezar">Empezar</a></li>
+    <li><a href="#crear">Crear una Situación de Aprendizaje</a></li>
+    <li><a href="#generar">Generar contenido con IA</a></li>
+    <li><a href="#editar">Editar y versionar</a></li>
+    <li><a href="#adaptar">Adaptaciones (ACNS / ACS)</a></li>
+    <li><a href="#exportar">Exportar a PDF y DOCX</a></li>
+    <li><a href="#cuenta">Mi cuenta</a></li>
+    <li><a href="#problemas">Problemas frecuentes</a></li>
+  </ul>
+</nav>
+
+<article class="card" id="empezar">
+  <h2>Empezar</h2>
+  <ol>
+    <li>Si aún no tienes cuenta, <a href="/register">regístrate como docente</a>.</li>
+    <li>Accede con tu correo y contraseña en <a href="/login">Iniciar sesión</a>.</li>
+    <li>Desde tu <a href="/perfil">perfil</a> puedes consultar y modificar tus datos.</li>
+  </ol>
+</article>
+
+<article class="card" id="crear">
+  <h2>Crear una Situación de Aprendizaje</h2>
+  <p>
+    Pulsa <strong>Nueva situación</strong> desde la lista o desde la cabecera.
+    Indica al menos materia, curso, número de sesiones y duración. Los demás
+    campos son opcionales y se utilizan para guiar a la IA.
+  </p>
+</article>
+
+<article class="card" id="generar">
+  <h2>Generar contenido con IA</h2>
+  <p>
+    Al crear una SA puedes marcar <strong>Generar con IA</strong> para que se
+    completen automáticamente las seis secciones LOMLOE: justificación,
+    objetivos, currículo, secuencia didáctica, evaluación y atención a la
+    diversidad. La generación tarda entre 30 segundos y 2 minutos según el
+    proveedor.
+  </p>
+  <p>
+    Puedes <strong>regenerar una sola sección</strong> desde el detalle si
+    una parte no te convence; las demás se conservan.
+  </p>
+</article>
+
+<article class="card" id="editar">
+  <h2>Editar y versionar</h2>
+  <p>
+    Los cambios al título y los campos básicos crean una <strong>nueva
+    versión</strong> automáticamente. Desde el detalle puedes consultar el
+    historial completo y volver a un estado anterior.
+  </p>
+</article>
+
+<article class="card" id="adaptar">
+  <h2>Adaptaciones (ACNS / ACS)</h2>
+  <p>
+    A partir de una SA generada, puedes crear una <strong>adaptación</strong>
+    para alumnado con necesidades específicas:
+  </p>
+  <ul>
+    <li><strong>ACNS</strong> — adaptación curricular no significativa.</li>
+    <li><strong>ACS</strong> — adaptación curricular significativa.</li>
+  </ul>
+  <p>
+    La SA adaptada se genera completa y conserva un enlace a la SA de origen.
+  </p>
+</article>
+
+<article class="card" id="exportar">
+  <h2>Exportar a PDF y DOCX</h2>
+  <p>
+    Desde el detalle de cualquier SA puedes descargar el documento en
+    <strong>PDF</strong> (paginación cuidada, listo para imprimir) o en
+    <strong>DOCX</strong> (editable en Word/LibreOffice).
+  </p>
+</article>
+
+<article class="card" id="cuenta">
+  <h2>Mi cuenta</h2>
+  <p>
+    En <a href="/perfil">Mi perfil</a> puedes actualizar nombre, centro
+    educativo y contraseña. Si olvidaste tu contraseña, usa
+    <a href="/restablecer-contrasena">¿Olvidaste tu contraseña?</a>.
+  </p>
+</article>
+
+<article class="card" id="problemas">
+  <h2>Problemas frecuentes</h2>
+  <details class="rubrica">
+    <summary>La generación de IA falla o tarda mucho</summary>
+    <p>
+      Espera 1–2 minutos. Si tras ese tiempo la SA queda en estado
+      <em>error</em>, vuelve al detalle y pulsa <strong>Reintentar</strong> o
+      <strong>Regenerar sección</strong>.
+    </p>
+  </details>
+  <details class="rubrica">
+    <summary>El PDF tiene saltos de página feos</summary>
+    <p>
+      Las plantillas de exportación intentan evitar viudas y huérfanos, pero
+      si te ocurre, edita la sección concreta para reducir longitud y vuelve
+      a exportar.
+    </p>
+  </details>
+  <details class="rubrica">
+    <summary>No recuerdo mi contraseña</summary>
+    <p>
+      Usa <a href="/restablecer-contrasena">¿Olvidaste tu contraseña?</a>
+      para recibir un correo con instrucciones.
+    </p>
+  </details>
+</article>
+{% endblock %}
