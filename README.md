@@ -94,7 +94,7 @@ opcional para desarrollo:
    ```
    Debe devolver:
    ```json
-   { "app": "ok", "database": "ok", "redis": "ok", "model": "gpt-4o-mini" }
+   { "app": "ok", "database": "ok", "redis": "ok", "model": "gpt-5.4" }
    ```
 
 6. Abre la app en <http://localhost:8080>. Adminer queda en
