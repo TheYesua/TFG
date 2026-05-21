@@ -16,6 +16,7 @@ from flask import current_app
 
 from .fake_provider import FakeProvider
 from .openai_provider import OpenAIProvider
+from .gemini_provider import GeminiProvider
 from .provider import LLMProvider
 
 
@@ -49,6 +50,21 @@ def get_provider() -> LLMProvider:
                 timeout=int(cfg.get("OPENAI_TIMEOUT") or 120),
             )
         return _cache["openai"]
+
+    if solicitado == "gemini":
+        gemini_key = cfg.get("GEMINI_API_KEY") or ""
+        if not gemini_key:
+            logger.warning(
+                "AI_PROVIDER=gemini pedido pero no hay GEMINI_API_KEY; "
+                "usando FakeProvider como respaldo."
+            )
+            return _cache.setdefault("fake", FakeProvider())
+        if "gemini" not in _cache:
+            _cache["gemini"] = GeminiProvider(
+                api_key=gemini_key,
+                modelo=cfg.get("GEMINI_MODEL") or "gemini-3.5-flash",
+            )
+        return _cache["gemini"]
 
     raise ValueError(f"AI_PROVIDER no soportado: {solicitado!r}")
 

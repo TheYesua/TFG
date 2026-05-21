@@ -83,6 +83,10 @@
           <i data-lucide="save" aria-hidden="true"></i>
           <span>Guardar cambios</span>
         </button>
+        <button type="button" class="btn btn--secondary" id="btn-finalizar">
+          <i data-lucide="check-circle" aria-hidden="true"></i>
+          <span id="btn-finalizar-texto">Marcar como terminada</span>
+        </button>
         <button type="button" class="btn" id="btn-duplicar">
           <i data-lucide="copy" aria-hidden="true"></i>
           <span>Duplicar</span>
@@ -283,6 +287,20 @@ function mostrarEstado(estado) {
   label.textContent = estado === 'borrador'
     ? 'Generar contenido completo'
     : 'Regenerar todo';
+
+  const btnFinalizar = document.getElementById('btn-finalizar');
+  if (btnFinalizar) {
+    const txt = document.getElementById('btn-finalizar-texto');
+    if (estado === 'finalizada') {
+      txt.textContent = 'Reabrir situación';
+      btnFinalizar.classList.replace('btn--secondary', 'btn--ghost');
+    } else {
+      txt.textContent = 'Marcar como terminada';
+      btnFinalizar.classList.replace('btn--ghost', 'btn--secondary');
+    }
+    // Deshabilitar el botón si se está generando
+    btnFinalizar.disabled = estado === 'generando';
+  }
 }
 
 function renderContenido(contenido) {
@@ -440,6 +458,7 @@ document.getElementById('sa-form').addEventListener('submit', async (ev) => {
     msg.textContent = 'Cambios guardados correctamente.';
     msg.hidden = false;
     document.getElementById('descripcion_cambio').value = '';
+    mostrarEstado(body.estado); // <--- ESTO ACTUALIZA EL BOTÓN
     cargarVersiones();
   } else if (body.detalles) {
     msg.textContent = body.detalles.map(d => `${d.loc?.join('.') ?? ''}: ${d.msg}`).join(' · ');
@@ -448,6 +467,17 @@ document.getElementById('sa-form').addEventListener('submit', async (ev) => {
     msg.textContent = body.mensaje || body.error || 'Error';
     msg.hidden = false;
   }
+});
+
+document.getElementById('btn-finalizar').addEventListener('click', () => {
+  const select = document.getElementById('estado');
+  if (select.value === 'finalizada') {
+    select.value = 'generada'; // o borrador, pero asumiendo que ya tiene contenido
+  } else {
+    select.value = 'finalizada';
+  }
+  // Enviar el formulario para guardar
+  document.getElementById('sa-form').dispatchEvent(new Event('submit', { cancelable: true }));
 });
 
 document.getElementById('btn-duplicar').addEventListener('click', async () => {

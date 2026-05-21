@@ -55,6 +55,8 @@ services:
       AI_PROVIDER: ${AI_PROVIDER}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -85,6 +87,8 @@ services:
       AI_PROVIDER: ${AI_PROVIDER}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL}
     depends_on:
       postgres:
         condition: service_healthy

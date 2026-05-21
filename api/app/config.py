@@ -87,3 +87,7 @@ class Config:
     OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = os.environ.get("OPENAI_MODEL", "")
     OPENAI_TIMEOUT: int = int(os.environ.get("OPENAI_TIMEOUT", "120"))
+    
+    # --- Gemini ---
+    GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")

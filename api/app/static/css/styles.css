@@ -225,10 +225,13 @@ img, svg { max-width: 100%; height: auto; }
    Tamaño consistente, sin distorsión y con object-fit por si el origen
    no es cuadrado. */
 .brand__logo {
-  width: 40px;
-  height: 40px;
+  width: 60px; /* Tamaño ampliado del logo */
+  height: 60px;
+  margin-top: calc(-1 * var(--space-3));
+  margin-bottom: calc(-1 * var(--space-3));
+  border-radius: 35%; /* Bordes redondeados (puedes cambiarlo a 50% si quieres un círculo perfecto) */
   flex-shrink: 0;
-  object-fit: contain;
+  object-fit: cover;
 }
 .brand__nombre { letter-spacing: .02em; }
 .brand:hover { text-decoration: none; }
@@ -612,7 +615,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: 
 /* Checkbox personalizado con foco visible y target táctil amplio. */
 .check {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
   cursor: pointer;
   padding: var(--space-2);
@@ -624,7 +627,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: 
 .check input[type="checkbox"] {
   width: 1.25rem;
   height: 1.25rem;
-  margin-top: 2px;
   accent-color: var(--color-primary);
   flex-shrink: 0;
 }
