@@ -116,3 +116,12 @@ desktop.ini
 docker-compose.override.local.yml
 *.local
 
+# -----------------------------------------------------------------------------
+# Scripts y datos del estudio de validación (generados offline, no son parte
+# del código fuente de la aplicación)
+# -----------------------------------------------------------------------------
+resultados_estudio/
+api/corregir_sumas.py
+api/evaluar_existentes.py
+api/generar_estudio.py
+

@@ -37,8 +37,10 @@ opcional para desarrollo:
 - **Logging estructurado** con `structlog` (JSON en producción, texto coloreado
   en desarrollo). Cada petición lleva `X-Request-ID` que se propaga también a
   las tareas Celery vía signals.
-- **IA pluggable** por interfaz `LLMProvider`: implementaciones `OpenAIProvider`
-  (real) y `FakeProvider` (determinista, sin red, para tests).
+- **IA pluggable** por interfaz `LLMProvider`: implementaciones
+  `OpenAIProvider` y `GeminiProvider` (reales, conectadas a las APIs de
+  OpenAI y Google Gemini), más `FakeProvider` (determinista, sin red, para
+  desarrollo y tests). Selección por variable de entorno `AI_PROVIDER`.
 - **Exportación**: PDF con WeasyPrint, DOCX con `python-docx`. Fuente fijada
   explícitamente (Calibri) en el OOXML para coherencia entre visualizadores.
 - **Accesibilidad WCAG 2.1 AA**: paleta auditada (contraste AAA en texto
@@ -50,8 +52,10 @@ opcional para desarrollo:
 ## Requisitos previos
 
 - **Docker Desktop** (Windows/macOS) o **Docker Engine + Compose v2** (Linux).
-- Clave de **OpenAI** con acceso al modelo configurado en `OPENAI_MODEL`
-  (o `AI_PROVIDER=fake` si solo quieres probar el flujo sin consumir tokens).
+- Clave de **OpenAI** (variable `OPENAI_API_KEY`) o de **Google Gemini**
+  (variable `GEMINI_API_KEY`), según el proveedor seleccionado en
+  `AI_PROVIDER`. Si solo quieres probar el flujo sin consumir tokens,
+  fija `AI_PROVIDER=fake`.
 
 ---
 
@@ -70,8 +74,10 @@ opcional para desarrollo:
    Edita `.env` y rellena al menos:
    - `SECRET_KEY` (genera una con
      `python -c "import secrets; print(secrets.token_hex(32))"`).
-   - `OPENAI_API_KEY` con tu clave real
-     (<https://platform.openai.com/api-keys>).
+   - `AI_PROVIDER` (`openai`, `gemini` o `fake`).
+   - `OPENAI_API_KEY` (<https://platform.openai.com/api-keys>) si vas a
+     usar OpenAI, o `GEMINI_API_KEY`
+     (<https://aistudio.google.com/app/apikey>) si vas a usar Gemini.
    - `POSTGRES_PASSWORD` con algo razonable.
 
 3. **Construye e inicia** los servicios (perfil `dev` añade Adminer):
@@ -166,7 +172,7 @@ implementacion/
         ├── errors.py                # handlers globales (JSON / HTML)
         ├── security.py              # hashing, helpers
         ├── cli.py                   # comandos flask (seeds, etc.)
-        ├── ai/                      # LLMProvider + factory (openai/fake)
+        ├── ai/                      # LLMProvider + factory (openai/gemini/fake)
         ├── api/                     # blueprints REST (auth, me, situaciones…)
         ├── models/                  # SQLAlchemy: usuario, situacion, curriculo
         ├── schemas/                 # Pydantic (entrada/salida)
